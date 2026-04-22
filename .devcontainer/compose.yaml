@@ -1,0 +1,12 @@
+services:
+  flare-bundle:
+    container_name: flare-bundle
+    hostname: flare-bundle
+    image: php:8.4-fpm-trixie
+    volumes:
+      - ~/.ssh:/root/.ssh
+      - ../:/workspaces/flare-bundle
+    working_dir: /workspaces/flare-bundle
+    environment:
+      TERM: xterm-256color
+    command: sleep infinity

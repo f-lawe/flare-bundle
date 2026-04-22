@@ -1,0 +1,21 @@
+{
+  "name": "Flare Symfony",
+  "dockerComposeFile": "./compose.yaml",
+  "service": "flare-bundle",
+  "workspaceFolder": "/workspaces/flare-bundle",
+  "postCreateCommand": "/workspaces/flare-bundle/.devcontainer/post-create.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bmewburn.vscode-intelephense-client",
+        "editorconfig.editorconfig",
+        "github.vscode-github-actions",
+        "junstyle.php-cs-fixer",
+        "kilocode.kilo-code",
+        "ms-azuretools.vscode-containers",
+        "redhat.vscode-yaml",
+        "sanderronde.phpstan-vscode"
+      ]
+    }
+  }
+}
