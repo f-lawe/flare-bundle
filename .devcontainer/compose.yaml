@@ -2,7 +2,7 @@ services:
   flare-bundle:
     container_name: flare-bundle
     hostname: flare-bundle
-    image: php:8.4-fpm-trixie
+    image: php:8.3-fpm-trixie
     volumes:
       - ~/.ssh:/root/.ssh
       - ../:/workspaces/flare-bundle

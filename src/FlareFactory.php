@@ -13,14 +13,14 @@ class FlareFactory
 
     /**
      * @param array{
-     *  key: string,
-     *  trace?: bool,
-     *  censor?: array{
-     *      client_ips?: bool,
-     *      body_fields?: array<int, string>,
-     *      headers?: array<int, string>,
-     *      cookies?: bool,
-     *      session?: bool
+     *   key: string,
+     *   trace?: bool,
+     *   censor?: array{
+     *     client_ips?: bool,
+     *     body_fields?: array<int, string>,
+     *     headers?: array<int, string>,
+     *     cookies?: bool,
+     *     session?: bool
      * }} $config
      */
     public static function createFlare(array $config): void

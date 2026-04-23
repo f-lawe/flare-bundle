@@ -36,15 +36,8 @@ class FlareBundle extends AbstractBundle
 
     /**
      * @param array{
-     *  key: string,
-     *  trace?: bool,
-     *  censor?: array{
-     *      client_ips?: bool,
-     *      body_fields?: array<int, string>,
-     *      headers?: array<int, string>,
-     *      cookies?: bool,
-     *      session?: bool
-     * }} $config
+     *   key: string
+     * } $config
      */
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
