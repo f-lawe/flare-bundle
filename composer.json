@@ -10,11 +10,11 @@
         }
     ],
     "require": {
-        "php": ">=8.4",
+        "php": ">=8.3",
         "spatie/flare-client-php": "^2.0",
-        "symfony/config": "^8.0",
-        "symfony/dependency-injection": "^8.0",
-        "symfony/http-kernel": "^8.0"
+        "symfony/config": "^7.0",
+        "symfony/dependency-injection": "^7.0",
+        "symfony/http-kernel": "^7.0"
     },
     "require-dev": {
         "ergebnis/composer-normalize": "^2.51",
