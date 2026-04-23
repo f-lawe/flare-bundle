@@ -1,4 +1,12 @@
 # Symfony Flare Bundle
+[![Versions](https://img.shields.io/packagist/v/flawe/flare-bundle
+)](https://packagist.org/packages/flawe/flare-bundle)
+[![Downloads](https://img.shields.io/packagist/dt/flawe/flare-bundle
+)](https://packagist.org/packages/flawe/flare-bundle/stats)
+[![Licence](https://img.shields.io/packagist/l/flawe/flare-bundle
+)](./LICENCE.md)
+[![GitHub Actions](https://img.shields.io/github/actions/workflow/status/f-lawe/flare-bundle/pr-checks.yaml)](https://github.com/f-lawe/flare-bundle/actions/workflows/pr-checks.yaml)
+
 Send Symfony errors to Flare! This project is the Symfony counterpart of the [Laravel Flare](https://github.com/spatie/laravel-flare) package.
 
 ## Installation
