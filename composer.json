@@ -1,11 +1,12 @@
 {
     "name": "flawe/flare-bundle",
+    "description": "Send symfony errors to Flare",
     "license": "MIT",
     "type": "symfony-bundle",
-    "version": "0.0.1",
     "authors": [
         {
-            "name": "François Lavaud-Wernert"
+            "name": "François Lavaud-Wernert",
+            "email": "francois@lavaud.family"
         }
     ],
     "require": {
