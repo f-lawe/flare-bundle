@@ -1,0 +1,20 @@
+name: PR Checks
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  ci:
+    name: PR Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out ${{ github.sha }} from repository ${{ github.repository }}
+        uses: actions/checkout@v4
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
