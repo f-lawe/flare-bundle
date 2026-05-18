@@ -23,9 +23,9 @@ class FlareFactory
      *     session?: bool
      * }} $config
      */
-    public static function createFlare(array $config): void
+    public static function init(string $key, array $config): void
     {
-        $flareConfig = FlareConfig::make($config['key'])->useDefaults();
+        $flareConfig = FlareConfig::make($key)->useDefaults();
 
         if (\array_key_exists('trace', $config)) {
             $flareConfig->trace($config['trace']);
@@ -56,8 +56,13 @@ class FlareFactory
         self::$flare = Flare::make($flareConfig)->registerFlareHandlers();
     }
 
-    public static function loadFlare(): Flare
+    public static function load(): Flare
     {
         return self::$flare;
+    }
+
+    public static function isInitialized(): bool
+    {
+        return isset(self::$flare);
     }
 }

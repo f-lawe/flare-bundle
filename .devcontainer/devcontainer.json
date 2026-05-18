@@ -1,9 +1,31 @@
 {
-  "name": "Flare Symfony",
+  "name": "Flare Bundle",
   "dockerComposeFile": "./compose.yaml",
   "service": "flare-bundle",
   "workspaceFolder": "/workspaces/flare-bundle",
+  "onCreateCommand": "/workspaces/flare-bundle/.devcontainer/on-create.sh",
   "postCreateCommand": "/workspaces/flare-bundle/.devcontainer/post-create.sh",
+  "mounts": [
+    {
+      "source": "../../flare-bundle",
+      "target": "/workspaces/flare-bundle",
+      "type": "bind"
+    },
+    {
+      "source": "${localEnv:HOME}${localEnv:USERPROFILE}/.ssh",
+      "target": "/root/.ssh",
+      "type": "bind"
+    },
+    {
+      "source": "${localEnv:HOME}${localEnv:USERPROFILE}/.bashrc",
+      "target": "/root/.bashrc",
+      "type": "bind"
+    }
+  ],
+  "containerEnv": {
+    "TERM": "xterm-256color",
+    "FORCE_COLOR": "1"
+  },
   "customizations": {
     "vscode": {
       "extensions": [
