@@ -4,12 +4,25 @@ declare(strict_types=1);
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
-use Flawe\FlareBundle\EventSubscriber\ConfigurationEventSubscriber;
+use Flawe\FlareBundle\EventSubscriber\KernelEventSubscriber;
+use Flawe\FlareBundle\FlareFactory;
+use Spatie\FlareClient\Flare;
 
 return static function (ContainerConfigurator $container): void {
-    $container->services()->set(ConfigurationEventSubscriber::class)
+    $services = $container->services();
+
+    $services->set(Flare::class)
+        ->factory([FlareFactory::class, 'init'])
         ->args([
-            '$logger' => service('logger')->ignoreOnInvalid(),
+            '$parameterBag' => service('parameter_bag'),
         ])
-        ->tag('kernel.event_subscriber');
+        ->alias('flare', Flare::class)
+    ;
+
+    $services->set(KernelEventSubscriber::class)
+        ->args([
+            '$flare' => service('flare'),
+        ])
+        ->tag('kernel.event_subscriber')
+    ;
 };
