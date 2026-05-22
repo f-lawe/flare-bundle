@@ -3,8 +3,7 @@
   "dockerComposeFile": "./compose.yaml",
   "service": "flare-bundle",
   "workspaceFolder": "/workspaces/flare-bundle",
-  "onCreateCommand": "/workspaces/flare-bundle/.devcontainer/on-create.sh",
-  "postCreateCommand": "/workspaces/flare-bundle/.devcontainer/post-create.sh",
+  "containerUser": "dfx",
   "mounts": [
     {
       "source": "../../flare-bundle",
@@ -13,12 +12,12 @@
     },
     {
       "source": "${localEnv:HOME}${localEnv:USERPROFILE}/.ssh",
-      "target": "/root/.ssh",
+      "target": "/home/dfx/.ssh",
       "type": "bind"
     },
     {
       "source": "${localEnv:HOME}${localEnv:USERPROFILE}/.bashrc",
-      "target": "/root/.bashrc",
+      "target": "/home/dfx/.bashrc",
       "type": "bind"
     }
   ],

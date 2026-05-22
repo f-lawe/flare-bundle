@@ -24,7 +24,7 @@ class FlareFactory
          *   use_defaults: bool,
          *   trace?: bool,
          *   collect?: array<string, bool>,
-         *   censor?: array<string, bool | array<int, string>>,
+         *   censor?: array<string, array<int, string>|bool>,
          * } $config
          */
         $config = $parameterBag->get('flare.config');
@@ -106,23 +106,23 @@ class FlareFactory
         }
 
         if (isset($config['censor'])) {
-            if (isset($config['censor']['client_ips']) && is_bool($config['censor']['client_ips'])) {
+            if (isset($config['censor']['client_ips']) && \is_bool($config['censor']['client_ips'])) {
                 $flareConfig->censorClientIps($config['censor']['client_ips']);
             }
 
-            if (isset($config['censor']['cookies']) && is_bool($config['censor']['cookies'])) {
+            if (isset($config['censor']['cookies']) && \is_bool($config['censor']['cookies'])) {
                 $flareConfig->censorCookies($config['censor']['cookies']);
             }
 
-            if (isset($config['censor']['session']) && is_bool($config['censor']['session'])) {
+            if (isset($config['censor']['session']) && \is_bool($config['censor']['session'])) {
                 $flareConfig->censorSession($config['censor']['session']);
             }
 
-            if (isset($config['censor']['headers']) && is_array($config['censor']['headers'])) {
+            if (isset($config['censor']['headers']) && \is_array($config['censor']['headers'])) {
                 $flareConfig->censorHeaders(...$config['censor']['headers']);
             }
 
-            if (isset($config['censor']['body_fields']) && is_array($config['censor']['body_fields'])) {
+            if (isset($config['censor']['body_fields']) && \is_array($config['censor']['body_fields'])) {
                 $flareConfig->censorBodyFields(...$config['censor']['body_fields']);
             }
         }

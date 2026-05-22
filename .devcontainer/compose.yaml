@@ -2,5 +2,5 @@ services:
   flare-bundle:
     container_name: flare-bundle
     hostname: flare-bundle
-    image: php:8.3-fpm-trixie
+    image: dockette/php:8.3-fpm
     working_dir: /workspaces/flare-bundle
