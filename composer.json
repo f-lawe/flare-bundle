@@ -1,6 +1,6 @@
 {
     "name": "flawe/flare-bundle",
-    "description": "Send symfony errors to Flare",
+    "description": "Send Symfony errors to Flare",
     "license": "MIT",
     "type": "symfony-bundle",
     "authors": [
@@ -35,5 +35,10 @@
         "analyse": "phpstan analyse ./phpstan.neon",
         "check": "php-cs-fixer check",
         "fix": "php-cs-fixer fix"
+    },
+    "extra": {
+        "symfony": {
+            "allow-contrib": "true"
+        }
     }
 }
