@@ -1,3 +1,5 @@
+name: flare-bundle
+
 services:
   flare-bundle:
     container_name: flare-bundle
@@ -5,6 +7,15 @@ services:
     image: thecodingmachine/php:8.3-v5-fpm
     volumes:
       - ~/.ssh:/docker/.ssh
-      - ~/.bashrc:/docker/.bashrc
       - ../:/workspaces/flare-bundle
+      # Bash history
+      - flare-bundle_bash:/home/docker/.bash
+      # Utilities
+      - ~/.bashrc:/tmp/host/.bashrc
+      - ~/.config/kilo/kilo.jsonc:/tmp/host/kilo.jsonc
+      - ~/.local/share/kilo:/tmp/host/kilo
     working_dir: /workspaces/flare-bundle
+    command: tail -f /dev/null
+
+volumes:
+  flare-bundle_bash:
