@@ -3,6 +3,7 @@
   "dockerComposeFile": "./compose.yaml",
   "service": "flare-bundle",
   "workspaceFolder": "/workspaces/flare-bundle",
+  "postCreateCommand": "${containerWorkspaceFolder}/.devcontainer/post-create-command.sh",
   "containerEnv": {
     "TERM": "xterm-256color",
     "FORCE_COLOR": "1"

@@ -1,3 +1,8 @@
-/vendor/
+# Dependency directories
+vendor/
 
+# Build files
 *.cache
+
+# Tools
+.kilo
