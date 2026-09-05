@@ -6,7 +6,7 @@ services:
     hostname: flare-bundle
     image: thecodingmachine/php:8.3-v5-fpm
     volumes:
-      - ~/.ssh:/docker/.ssh
+      - ~/.ssh:/home/docker/.ssh
       - ../:/workspaces/flare-bundle
       # Bash history
       - flare-bundle_bash:/home/docker/.bash
