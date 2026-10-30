@@ -17,7 +17,7 @@ class FlareExtension extends Extension
         $config = $this->processConfiguration(new Configuration(), $configs);
         $container->setParameter('flare.config', $config);
 
-        $loader = new PhpFileLoader($container, new FileLocator(__DIR__.'/../../config'));
+        $loader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/../../config'));
         $loader->load('services.php');
     }
 }
