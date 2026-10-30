@@ -12,7 +12,7 @@ return (new Config())
         '@PhpCsFixer:risky' => true,
         'method_chaining_indentation' => false,
         'control_structure_continuation_position' => [
-            'position' => 'next_line'
+            'position' => 'next_line',
         ],
     ])
     ->setFinder(

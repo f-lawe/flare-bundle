@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Flawe\FlareBundle\DependencyInjection;
 
+use Flawe\FlareBundle\FlareFactory;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -20,7 +21,9 @@ class Configuration implements ConfigurationInterface
                 ->stringNode('key')->isRequired()->cannotBeEmpty()->end()
                 ->booleanNode('use_defaults')->defaultTrue()->end()
                 ->booleanNode('log')->end()
-                ->stringNode('minimal_log_level')->end()
+                ->enumNode('minimal_log_level')
+                    ->values(FlareFactory::LOG_LEVELS)
+                ->end()
                 ->booleanNode('report')->end()
                 ->integerNode('report_error_levels')->end()
                 ->booleanNode('trace')->end()
