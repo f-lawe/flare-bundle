@@ -4,7 +4,7 @@ services:
   flare-bundle:
     container_name: flare-bundle
     hostname: flare-bundle
-    image: thecodingmachine/php:8.4-v5-fpm
+    image: thecodingmachine/php:8.3-v5-fpm
     volumes:
       - ~/.ssh:/home/docker/.ssh
       - ../:/workspaces/flare-bundle

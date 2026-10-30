@@ -109,9 +109,9 @@ class FlareFactory
         }
 
         $traceLimits = [
-            'max_spans' => Tracer::DEFAULT_MAX_SPANS_LIMIT,
-            'max_attributes_per_span' => Tracer::DEFAULT_MAX_ATTRIBUTES_PER_SPAN_LIMIT,
-            'max_span_events_per_span' => Tracer::DEFAULT_MAX_SPAN_EVENTS_PER_SPAN_LIMIT,
+            'max_spans'                     => Tracer::DEFAULT_MAX_SPANS_LIMIT,
+            'max_attributes_per_span'       => Tracer::DEFAULT_MAX_ATTRIBUTES_PER_SPAN_LIMIT,
+            'max_span_events_per_span'      => Tracer::DEFAULT_MAX_SPAN_EVENTS_PER_SPAN_LIMIT,
             'max_attributes_per_span_event' => Tracer::DEFAULT_MAX_ATTRIBUTES_PER_SPAN_EVENT_LIMIT,
             ...$config['trace_limits'],
         ];
