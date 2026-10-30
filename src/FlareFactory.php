@@ -13,6 +13,16 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class FlareFactory
 {
+    public const LOG_LEVELS = [
+        LogLevel::DEBUG,
+        LogLevel::INFO,
+        LogLevel::NOTICE,
+        LogLevel::WARNING,
+        LogLevel::ERROR,
+        LogLevel::CRITICAL,
+        LogLevel::ALERT,
+        LogLevel::EMERGENCY,
+    ];
     private static Flare $flare;
 
     public static function init(ParameterBagInterface $parameterBag): Flare
@@ -50,7 +60,7 @@ class FlareFactory
     /**
      * @param array{
      *   log?: bool,
-     *   minimal_log_level?: 'Alert'|'Critical'|'Debug'|'Emergency'|'Error'|'Info'|'Notice'|'Warning'|LogLevel::*|value-of<Level::NAMES>,
+     *   minimal_log_level?: value-of<self::LOG_LEVELS>,
      * } $config
      */
     private static function setLog(FlareConfig $flareConfig, array $config): void

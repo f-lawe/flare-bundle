@@ -6,6 +6,6 @@
     "editor.defaultFormatter": "vscode.json-language-features",
   },
   "[php]": {
-    "editor.defaultFormatter": "junstyle.php-cs-fixer"
+    "editor.defaultFormatter": "mansoorkhan96.php-cs-fixer"
   }
 }
