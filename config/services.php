@@ -14,7 +14,7 @@ return static function (ContainerConfigurator $container): void {
     $services->set(Flare::class)
         ->factory([FlareFactory::class, 'init'])
         ->args([
-            '$parameterBag' => service('parameter_bag'),
+            '$config' => param('flare.config'),
         ])
         ->alias('flare', Flare::class)
     ;
