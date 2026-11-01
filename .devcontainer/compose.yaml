@@ -9,7 +9,7 @@ services:
       - ~/.ssh:/home/docker/.ssh
       - ../:/workspaces/flare-bundle
       # Bash history
-      - flare-bundle_bash:/home/docker/.bash
+      - bash-history:/home/docker/.bash
       # Utilities
       - ~/.bashrc:/tmp/host/.bashrc
       - ~/.config/kilo/kilo.jsonc:/tmp/host/kilo.jsonc
@@ -18,4 +18,4 @@ services:
     command: tail -f /dev/null
 
 volumes:
-  flare-bundle_bash:
+  bash-history:
