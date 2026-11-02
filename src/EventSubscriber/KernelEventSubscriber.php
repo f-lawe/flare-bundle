@@ -7,6 +7,7 @@ namespace Flawe\FlareBundle\EventSubscriber;
 use Spatie\FlareClient\Flare;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class KernelEventSubscriber implements EventSubscriberInterface
@@ -19,8 +20,14 @@ class KernelEventSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
+            KernelEvents::REQUEST   => ['onKernelRequest', 4096],
             KernelEvents::EXCEPTION => ['onKernelException', 0],
         ];
+    }
+
+    public function onKernelRequest(RequestEvent $event): void
+    {
+        // Listening is enough: instantiating this subscriber builds and boots Flare.
     }
 
     public function onKernelException(ExceptionEvent $event): void

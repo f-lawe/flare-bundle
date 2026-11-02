@@ -19,7 +19,11 @@
     "require-dev": {
         "ergebnis/composer-normalize": "^2.51",
         "friendsofphp/php-cs-fixer": "^3.94",
-        "phpstan/phpstan": "^2.1"
+        "phpstan/phpstan": "^2.1",
+        "symfony/console": "^7.0"
+    },
+    "suggest": {
+        "symfony/console": "Report errors raised by console commands"
     },
     "autoload": {
         "psr-4": {
@@ -32,7 +36,7 @@
         }
     },
     "scripts": {
-        "analyse": "phpstan analyse ./phpstan.neon",
+        "analyse": "phpstan analyse -c ./phpstan.neon",
         "check": "php-cs-fixer check",
         "fix": "php-cs-fixer fix"
     },
