@@ -18,7 +18,7 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
-                ->stringNode('key')->isRequired()->cannotBeEmpty()->end()
+                ->scalarNode('key')->defaultNull()->end()
                 ->booleanNode('use_defaults')->defaultTrue()->end()
                 ->booleanNode('log')->end()
                 ->enumNode('minimal_log_level')
@@ -38,8 +38,8 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('collect')
                     ->children()
                         ->booleanNode('errors_with_traces')->end()
-                        ->arrayNode('dumps')->end()
-                        ->arrayNode('context')->end()
+                        ->booleanNode('dumps')->end()
+                        ->booleanNode('context')->end()
                         ->booleanNode('commands')->end()
                         ->booleanNode('requests')->end()
                         ->booleanNode('cache_events')->end()

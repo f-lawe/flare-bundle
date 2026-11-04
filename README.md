@@ -35,7 +35,7 @@ And finally, add the file `config/packages/flare.yaml` and fill it with your set
 
 ```yaml
 flare:
-    key: '%env(FLARE_KEY)%'
+    key: '%env(default::FLARE_KEY)%'
     trace: false
     censor:
         client_ips: true
@@ -45,27 +45,26 @@ flare:
         session: true
 ```
 
-The minimum configuration requires the `key` option.
+When `key` is empty or missing, Flare is disabled: nothing is sent and no error is raised.
 
 ## Usage
-The bundle will automatically report all errors to Flare.
-
-On top of that, you can inject Flare to monitor perfomance:
+The bundle will automatically report all errors to Flare. On top of that, you can inject Flare to monitor performance with custom spans:
 
 ```php
 namespace App\Controller;
 
 use Spatie\FlareClient\Flare;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 
 class SomeController
 {
     #[Route('/some-action')]
     public function someAction(Flare $flare): Response
     {
-        $flare->application()->recordStart();
-        // Do something
-        $flare->application()->recordEnd();
+        $flare->tracer->span('Do something', function () {
+            // Do something
+        });
 
         return new Response('Some Response');
     }

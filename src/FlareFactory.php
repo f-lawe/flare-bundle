@@ -17,7 +17,13 @@ class FlareFactory
     {
         $container = new Container($overrides);
 
-        $provider = new FlareProvider(FlareConfig::fromSymfonyConfig($config), $container);
+        $config = FlareConfig::fromSymfonyConfig($config);
+
+        $provider = new FlareProvider(
+            config: $config,
+            container: $container,
+            collectsResolver: $config->collectsResolver,
+        );
         $provider->register();
         $provider->boot();
 

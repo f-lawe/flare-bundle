@@ -28,11 +28,11 @@ class FlareConfig extends \Spatie\FlareClient\FlareConfig
     {
         /**
          * @var array<string, mixed>&array{
-         *   key: string,
+         *   key: ?string,
          *   use_defaults: bool,
          * } $config
          */
-        $flareConfig = self::make($config['key']);
+        $flareConfig = self::make(trim((string) $config['key']));
 
         if ($config['use_defaults']) {
             $flareConfig->useDefaults();
