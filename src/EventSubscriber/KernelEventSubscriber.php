@@ -32,8 +32,12 @@ class KernelEventSubscriber implements EventSubscriberInterface
                 ['onRoutingStart', 33],
                 ['onRoutingEnd', 31],
             ],
-            KernelEvents::EXCEPTION => ['onKernelException', 0],
-            KernelEvents::RESPONSE  => ['onKernelResponse', -4096],
+            KernelEvents::EXCEPTION => [
+                ['onKernelException', 0],
+            ],
+            KernelEvents::RESPONSE => [
+                ['onKernelResponse', -4096],
+            ],
             KernelEvents::TERMINATE => [
                 ['onKernelTerminating', 4096],
                 ['onKernelTerminated', -4096],
@@ -114,9 +118,9 @@ class KernelEventSubscriber implements EventSubscriberInterface
         $route = $request->attributes->get(self::ATTRIBUTE_ROUTE);
 
         return new PhpRouteAttributesProvider(
-            route: \is_string($route) ? $route : null,
-            method: $request->getMethod(),
-            handlerName: self::controllerName($request->attributes->get(self::ATTRIBUTE_CONTROLLER)),
+            \is_string($route) ? $route : null,
+            $request->getMethod(),
+            self::controllerName($request->attributes->get(self::ATTRIBUTE_CONTROLLER)),
         );
     }
 
