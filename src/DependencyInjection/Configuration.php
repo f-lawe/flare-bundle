@@ -31,6 +31,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('log')
                     ->children()
                         ->booleanNode('enable')->end()
+                        ->booleanNode('auto_register')->defaultTrue()->end()
                         ->enumNode('minimal_level')
                             ->values(FlareConfig::LOG_LEVELS)
                         ->end()

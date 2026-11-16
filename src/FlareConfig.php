@@ -58,6 +58,7 @@ class FlareConfig extends \Spatie\FlareClient\FlareConfig
      * @param array{
      *   log?: array{
      *     enable?: bool,
+     *     auto_register?: bool,
      *     minimal_level?: value-of<self::LOG_LEVELS>,
      *   },
      * } $config

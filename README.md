@@ -84,7 +84,7 @@ flare:
             daemon_url: '%env(default::FLARE_DAEMON_URL)%'
 ```
 
-See the [Flare daemon documentation](https://flareapp.io/docs/php/general/flare-daemon) to run the daemon.
+See [Flare daemon](https://flareapp.io/docs/php/general/flare-daemon) to run the daemon.
 
 ### Sampling
 Traces are sampled at 10% by default. Use `sampling` to change the strategy (`rate`, `always` or `never`), the rate, and add per-entry-point rules:
@@ -102,13 +102,27 @@ flare:
 Rule types are `url`, `path`, `route`, `command` and `job`; patterns accept `*` as a wildcard. `route` rules match the Symfony route **name**. See [Sampling](https://flareapp.io/docs/php/performance/sampling).
 
 ### Logs
-With MonologBundle installed and `log: true`, the bundle registers a `flare` Monolog handler sending your application logs to Flare. Logs are also required for `collect.logs_with_errors`.
+Enable log collection to send your application logs to Flare. Logs are also required for `collect.logs_with_errors`.
 
 ```yaml
 flare:
-    log: true
-    minimal_log_level: warning
+    log:
+        enable: true
+        minimal_level: warning
 ```
 
-Restrict channels by configuring the handler in `config/packages/monolog.yaml` (e.g. `monolog.handlers.flare.channels: ['!event']`), or disable it with `monolog_handler: false`.
+The bundle then hooks into the Symfony logger automatically, while keeping your existing log output:
+- with [MonologBundle](https://symfony.com/doc/current/logging.html#monolog), a `flare` Monolog handler is registered and receives every channel. Restrict channels in `config/packages/monolog.yaml`:
+
+  ```yaml
+  monolog:
+      handlers:
+          flare:
+              channels: ['!event', '!doctrine']
+  ```
+- without Monolog, the default `logger` service is decorated: messages are still written by the Symfony logger, and also sent to Flare.
+
+Set `log.auto_register: false` to disable this integration and only record logs manually with `$flare->log()->record()`.
+
+Logs are sent at the end of each request or console command. See [Logs](https://flareapp.io/docs/php/logs/introduction).
 
