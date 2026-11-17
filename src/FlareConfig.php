@@ -150,13 +150,13 @@ final class FlareConfig extends \Spatie\FlareClient\FlareConfig
 
         $sampling = $config['sampling'];
 
-        if ('always' === $sampling['strategy']) {
+        if ($sampling['strategy'] === 'always') {
             $this->alwaysSampleTraces();
 
             return;
         }
 
-        if ('never' === $sampling['strategy']) {
+        if ($sampling['strategy'] === 'never') {
             $this->neverSampleTraces();
 
             return;
@@ -166,7 +166,7 @@ final class FlareConfig extends \Spatie\FlareClient\FlareConfig
             $this->sampleRate($sampling['rate']);
         }
 
-        if ([] !== $sampling['rules']) {
+        if ($sampling['rules'] !== []) {
             $this->sampler(DynamicSampler::class, [
                 'base_rate' => $sampling['rate'] ?? null,
                 'rules'     => array_map(

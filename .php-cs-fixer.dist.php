@@ -23,6 +23,11 @@ return (new Config())
             'strategy' => 'enforce',
         ],
         'method_chaining_indentation' => false,
+        'yoda_style'                  => [
+            'equal'            => false,
+            'identical'        => false,
+            'less_and_greater' => false,
+        ],
     ])
     ->setFinder(
         (new Finder())

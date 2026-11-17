@@ -42,7 +42,7 @@ final class FlareLogger extends AbstractLogger implements DebugLoggerInterface
             default                => null,
         };
 
-        if (null !== $monologLevel) {
+        if ($monologLevel !== null) {
             $this->flareLogger->record((string) $message, $monologLevel, $context);
         }
     }

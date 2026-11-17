@@ -51,7 +51,7 @@ final class FlareExtension extends Extension implements PrependExtensionInterfac
         $loader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/../../config'));
         $loader->load('services.php');
 
-        if (false === self::isAutoRegisterEnabled([$config])) {
+        if (self::isAutoRegisterEnabled([$config]) === false) {
             return;
         }
 
@@ -77,7 +77,7 @@ final class FlareExtension extends Extension implements PrependExtensionInterfac
         $autoRegister = true;
 
         foreach ($configs as $config) {
-            $autoRegister = \is_array($config) && \is_array($config['log'] ?? null) ? true === $config['log']['auto_register'] : true;
+            $autoRegister = \is_array($config) && \is_array($config['log'] ?? null) ? $config['log']['auto_register'] === true : true;
         }
 
         return $autoRegister;

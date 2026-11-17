@@ -78,7 +78,7 @@ final class Configuration implements ConfigurationInterface
                 ->arrayNode('sampling')
                     ->info('Trace sampling. Defaults to Flare\'s setting (10% of traces).')
                     ->validate()
-                        ->ifTrue(static fn (mixed $sampling): bool => \is_array($sampling) && 'rate' !== $sampling['strategy'] && [] !== $sampling['rules'])
+                        ->ifTrue(static fn (mixed $sampling): bool => \is_array($sampling) && $sampling['strategy'] !== 'rate' && $sampling['rules'] !== [])
                         ->thenInvalid('Sampling rules require the "rate" strategy.')
                     ->end()
                     ->children()

@@ -41,7 +41,7 @@ final class ConsoleEventSubscriber implements EventSubscriberInterface
         $command = $event->getCommand();
 
         // Long-running workers trace each unit of work as a subtask, not the worker command itself.
-        if (null === $command || $this->flare->lifecycle->usesSubtasks) {
+        if ($command === null || $this->flare->lifecycle->usesSubtasks) {
             return;
         }
 
