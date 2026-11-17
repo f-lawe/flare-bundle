@@ -9,8 +9,10 @@ use Spatie\FlareClient\Support\Container as FlareClientContainer;
 
 /**
  * Flare's container where services tagged "flare.service" in Symfony take precedence over Flare's own bindings.
+ *
+ * @internal
  */
-class Container extends FlareClientContainer
+final class Container extends FlareClientContainer
 {
     public function __construct(
         private ContainerInterface $overrides,

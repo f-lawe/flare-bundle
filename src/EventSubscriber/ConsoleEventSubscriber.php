@@ -12,7 +12,10 @@ use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class ConsoleEventSubscriber implements EventSubscriberInterface
+/**
+ * @internal
+ */
+final class ConsoleEventSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private Flare $flare
@@ -38,7 +41,7 @@ class ConsoleEventSubscriber implements EventSubscriberInterface
         $command = $event->getCommand();
 
         // Long-running workers trace each unit of work as a subtask, not the worker command itself.
-        if (null === $command || $this->flare->lifecycle->usesSubtasks) {
+        if ($command === null || $this->flare->lifecycle->usesSubtasks) {
             return;
         }
 

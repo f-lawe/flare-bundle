@@ -48,7 +48,7 @@ flare:
 When `key` is empty or missing, Flare is disabled: nothing is sent and no error is raised.
 
 ## Usage
-The bundle will automatically report all errors to Flare. On top of that, you can inject Flare to monitor performance with custom spans:
+The bundle will automatically report all errors to Flare. You can also inject Flare when you need it:
 
 ```php
 namespace App\Controller;
@@ -70,3 +70,59 @@ class SomeController
     }
 }
 ```
+
+## Configuration
+
+### Sender
+Payloads are sent to Flare with cURL by default. Use `sender` to pick another transport (`curl`, `daemon`, `guzzle` or `null`), with its options:
+
+```yaml
+flare:
+    sender:
+        type: daemon
+        options:
+            daemon_url: '%env(default::FLARE_DAEMON_URL)%'
+```
+
+See [Flare daemon](https://flareapp.io/docs/php/general/flare-daemon) to run the daemon.
+
+### Sampling
+Traces are sampled at 10% by default. Use `sampling` to change the strategy (`rate`, `always` or `never`), the rate, and add per-entry-point rules:
+
+```yaml
+flare:
+    sampling:
+        rate: 0.2
+        rules:
+            - { type: path, pattern: '/health', rate: 0 }
+            - { type: route, pattern: 'app_checkout_*', rate: 1 }
+            - { type: command, pattern: 'app:import*', rate: 0.5 }
+```
+
+Rule types are `url`, `path`, `route`, `command` and `job`; patterns accept `*` as a wildcard. `route` rules match the Symfony route **name**. See [Sampling](https://flareapp.io/docs/php/performance/sampling).
+
+### Logs
+Enable log collection to send your application logs to Flare. Logs are also required for `collect.logs_with_errors`.
+
+```yaml
+flare:
+    log:
+        enable: true
+        minimal_level: warning
+```
+
+The bundle hooks into the Symfony logger automatically, while keeping your existing log output (records are only sent to Flare when `log.enable` is `true`):
+- with [MonologBundle](https://symfony.com/doc/current/logging.html#monolog), a `flare` Monolog handler is registered and receives every channel. Restrict channels in `config/packages/monolog.yaml`:
+
+  ```yaml
+  monolog:
+      handlers:
+          flare:
+              channels: ['!event', '!doctrine']
+  ```
+- without Monolog, the default `logger` service is decorated: messages are still written by the Symfony logger, and also sent to Flare.
+
+Set `log.auto_register: false` to disable this integration and only record logs manually with `$flare->log()->record()`.
+
+Logs are sent at the end of each request or console command. See [Logs](https://flareapp.io/docs/php/logs/introduction).
+

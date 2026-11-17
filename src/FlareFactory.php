@@ -10,19 +10,19 @@ use Spatie\FlareClient\Enums\SpanType;
 use Spatie\FlareClient\FlareProvider;
 use Spatie\FlareClient\Spans\Span;
 
-class FlareFactory
+/**
+ * @internal
+ */
+final class FlareFactory
 {
-    private const SERVER_FRANKENPHP_WORKER  = 'FRANKENPHP_WORKER';
-    private const SERVER_RR_MODE            = 'RR_MODE';
-    private const SERVER_ARGV               = 'argv';
-    private const MESSENGER_CONSUME_COMMAND = 'messenger:consume';
+    private const SERVER_FRANKENPHP_WORKER = 'FRANKENPHP_WORKER';
+    private const SERVER_RR_MODE           = 'RR_MODE';
 
     private const SPANS_CLOSED_BY_BUNDLE = [
         SpanType::Application,
         SpanType::ApplicationTerminating,
         SpanType::Request,
         SpanType::Command,
-        SpanType::Job,
     ];
 
     /**
@@ -63,13 +63,7 @@ class FlareFactory
             return true;
         }
 
-        if (($_SERVER[self::SERVER_RR_MODE] ?? getenv(self::SERVER_RR_MODE)) !== false) {
-            return true;
-        }
-
-        $argv = $_SERVER[self::SERVER_ARGV] ?? [];
-
-        return \PHP_SAPI === 'cli' && \is_array($argv) && \in_array(self::MESSENGER_CONSUME_COMMAND, $argv, true);
+        return ($_SERVER[self::SERVER_RR_MODE] ?? getenv(self::SERVER_RR_MODE)) !== false;
     }
 
     /**

@@ -4,11 +4,18 @@ declare(strict_types=1);
 
 namespace Flawe\FlareBundle;
 
+use Flawe\FlareBundle\Sampling\Rules\RuleType;
+use Flawe\FlareBundle\Senders\SenderType;
 use Monolog\Level;
 use Psr\Log\LogLevel;
+use Spatie\FlareClient\Sampling\DynamicSampler;
+use Spatie\FlareClient\Sampling\SamplingRule;
 use Spatie\FlareClient\Tracer;
 
-class FlareConfig extends \Spatie\FlareClient\FlareConfig
+/**
+ * @internal
+ */
+final class FlareConfig extends \Spatie\FlareClient\FlareConfig
 {
     public const LOG_LEVELS = [
         LogLevel::DEBUG,
@@ -41,6 +48,8 @@ class FlareConfig extends \Spatie\FlareClient\FlareConfig
         $flareConfig->setLog($config);
         $flareConfig->setReport($config);
         $flareConfig->setTrace($config);
+        $flareConfig->setSampling($config);
+        $flareConfig->setSender($config);
         $flareConfig->setCollectConfig($config);
         $flareConfig->setCensorConfig($config);
         $flareConfig->setApplication($config);
@@ -50,20 +59,27 @@ class FlareConfig extends \Spatie\FlareClient\FlareConfig
 
     /**
      * @param array{
-     *   log?: bool,
-     *   minimal_log_level?: value-of<self::LOG_LEVELS>,
+     *   log?: array{
+     *     enable?: bool,
+     *     auto_register?: bool,
+     *     minimal_level?: value-of<self::LOG_LEVELS>,
+     *   },
      * } $config
      */
     private function setLog(array $config): void
     {
+        if (!isset($config['log'])) {
+            return;
+        }
+
         try {
-            $logLevel = isset($config['minimal_log_level']) ? Level::fromName($config['minimal_log_level']) : null;
+            $logLevel = isset($config['log']['minimal_level']) ? Level::fromName($config['log']['minimal_level']) : null;
         }
         catch (\UnhandledMatchError $error) {
             $logLevel = null;
         }
 
-        $this->log($config['log'] ?? false, $logLevel);
+        $this->log($config['log']['enable'] ?? false, $logLevel);
     }
 
     /**
@@ -104,6 +120,7 @@ class FlareConfig extends \Spatie\FlareClient\FlareConfig
             'max_attributes_per_span'       => Tracer::DEFAULT_MAX_ATTRIBUTES_PER_SPAN_LIMIT,
             'max_span_events_per_span'      => Tracer::DEFAULT_MAX_SPAN_EVENTS_PER_SPAN_LIMIT,
             'max_attributes_per_span_event' => Tracer::DEFAULT_MAX_ATTRIBUTES_PER_SPAN_EVENT_LIMIT,
+            'max_attribute_size_in_kb'      => Tracer::DEFAULT_MAX_ATTRIBUTE_SIZE_IN_KB,
             ...$config['trace_limits'],
         ];
 
@@ -112,7 +129,76 @@ class FlareConfig extends \Spatie\FlareClient\FlareConfig
             maxAttributesPerSpan: $traceLimits['max_attributes_per_span'],
             maxSpanEventsPerSpan: $traceLimits['max_span_events_per_span'],
             maxAttributesPerSpanEvent: $traceLimits['max_attributes_per_span_event'],
+            maxAttributeSizeInKb: $traceLimits['max_attribute_size_in_kb'],
         );
+    }
+
+    /**
+     * @param array{
+     *   sampling?: array{
+     *     strategy: 'always'|'never'|'rate',
+     *     rate?: float,
+     *     rules: list<array{type: value-of<RuleType>, pattern: string, rate: float}>,
+     *   },
+     * } $config
+     */
+    private function setSampling(array $config): void
+    {
+        if (!isset($config['sampling'])) {
+            return;
+        }
+
+        $sampling = $config['sampling'];
+
+        if ($sampling['strategy'] === 'always') {
+            $this->alwaysSampleTraces();
+
+            return;
+        }
+
+        if ($sampling['strategy'] === 'never') {
+            $this->neverSampleTraces();
+
+            return;
+        }
+
+        if (isset($sampling['rate'])) {
+            $this->sampleRate($sampling['rate']);
+        }
+
+        if ($sampling['rules'] !== []) {
+            $this->sampler(DynamicSampler::class, [
+                'base_rate' => $sampling['rate'] ?? null,
+                'rules'     => array_map(
+                    static fn (array $rule): SamplingRule => match ($rule['type']) {
+                        RuleType::URL->value     => SamplingRule::forUrl($rule['pattern'], $rule['rate']),
+                        RuleType::PATH->value    => SamplingRule::forPath($rule['pattern'], $rule['rate']),
+                        RuleType::ROUTE->value   => SamplingRule::forRoute($rule['pattern'], $rule['rate']),
+                        RuleType::COMMAND->value => SamplingRule::forCommand($rule['pattern'], $rule['rate']),
+                        RuleType::JOB->value     => SamplingRule::forJob($rule['pattern'], $rule['rate']),
+                    },
+                    $sampling['rules']
+                ),
+            ]);
+        }
+    }
+
+    /**
+     * @param array{
+     *   sender?: array{
+     *     type: value-of<SenderType>,
+     *     options?: array<mixed>,
+     *   },
+     * } $config
+     */
+    private function setSender(array $config): void
+    {
+        if (!isset($config['sender'])) {
+            return;
+        }
+
+        $senderClass = SenderType::from($config['sender']['type'])->senderClass();
+        $this->sendUsing($senderClass, $config['sender']['options'] ?? []);
     }
 
     /**
