@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Flawe\FlareBundle;
 
+use Flawe\FlareBundle\DependencyInjection\Compiler\LogIntegrationPass;
 use Flawe\FlareBundle\DependencyInjection\FlareExtension;
 use Spatie\FlareClient\Flare;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\ErrorHandler\ErrorHandler;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
@@ -13,6 +15,14 @@ use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 class FlareBundle extends AbstractBundle
 {
     private const SERVER_HTTP_TRACEPARENT = 'HTTP_TRACEPARENT';
+
+    #[\Override]
+    public function build(ContainerBuilder $container): void
+    {
+        parent::build($container);
+
+        $container->addCompilerPass(new LogIntegrationPass());
+    }
 
     #[\Override]
     public function getContainerExtension(): ?ExtensionInterface
@@ -42,8 +52,14 @@ class FlareBundle extends AbstractBundle
 
     private static function hasSymfonyErrorHandler(): bool
     {
-        $handler = set_exception_handler('var_dump');
-        restore_exception_handler();
+        if (\function_exists('get_exception_handler')) {
+            // PHP >= 8.5
+            $handler = get_exception_handler();
+        }
+        else {
+            $handler = set_exception_handler(null);
+            restore_exception_handler();
+        }
 
         return \is_array($handler) && $handler[0] instanceof ErrorHandler;
     }

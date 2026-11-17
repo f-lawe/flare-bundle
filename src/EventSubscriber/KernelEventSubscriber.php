@@ -13,7 +13,10 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-class KernelEventSubscriber implements EventSubscriberInterface
+/**
+ * @internal
+ */
+final class KernelEventSubscriber implements EventSubscriberInterface
 {
     private const HEADER_TRACEPARENT   = 'traceparent';
     private const ATTRIBUTE_ROUTE      = '_route';

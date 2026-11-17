@@ -28,7 +28,6 @@ return static function (ContainerConfigurator $container): void {
     $services->set(Container::class)
         ->factory([FlareFactory::class, 'create'])
         ->args([
-            '$config'    => param('flare.config'),
             '$overrides' => tagged_locator('flare.service'),
         ])
     ;

@@ -74,7 +74,7 @@ class SomeController
 ## Configuration
 
 ### Sender
-Payloads are sent to Flare with cURL by default. Use `sender` to pick another transport (`curl`, `daemon`, `guzzle`, `null` or a class implementing `Spatie\FlareClient\Senders\Sender`), with its options:
+Payloads are sent to Flare with cURL by default. Use `sender` to pick another transport (`curl`, `daemon`, `guzzle` or `null`), with its options:
 
 ```yaml
 flare:
@@ -111,7 +111,7 @@ flare:
         minimal_level: warning
 ```
 
-The bundle then hooks into the Symfony logger automatically, while keeping your existing log output:
+The bundle hooks into the Symfony logger automatically, while keeping your existing log output (records are only sent to Flare when `log.enable` is `true`):
 - with [MonologBundle](https://symfony.com/doc/current/logging.html#monolog), a `flare` Monolog handler is registered and receives every channel. Restrict channels in `config/packages/monolog.yaml`:
 
   ```yaml

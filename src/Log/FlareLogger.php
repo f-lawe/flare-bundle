@@ -12,6 +12,9 @@ use Spatie\FlareClient\Logger;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Log\DebugLoggerInterface;
 
+/**
+ * @internal
+ */
 final class FlareLogger extends AbstractLogger implements DebugLoggerInterface
 {
     public function __construct(

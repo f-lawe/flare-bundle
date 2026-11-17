@@ -12,7 +12,10 @@ use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-class ConsoleEventSubscriber implements EventSubscriberInterface
+/**
+ * @internal
+ */
+final class ConsoleEventSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private Flare $flare

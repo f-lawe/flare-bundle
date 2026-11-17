@@ -12,7 +12,10 @@ use Spatie\FlareClient\Sampling\DynamicSampler;
 use Spatie\FlareClient\Sampling\SamplingRule;
 use Spatie\FlareClient\Tracer;
 
-class FlareConfig extends \Spatie\FlareClient\FlareConfig
+/**
+ * @internal
+ */
+final class FlareConfig extends \Spatie\FlareClient\FlareConfig
 {
     public const LOG_LEVELS = [
         LogLevel::DEBUG,

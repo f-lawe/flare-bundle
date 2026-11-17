@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Flawe\FlareBundle\DependencyInjection;
 
 use Flawe\FlareBundle\Log\FlareLogger;
+use Flawe\FlareBundle\Support\Container;
 use Spatie\FlareClient\Logger;
 use Spatie\FlareClient\Support\FlareLogHandler;
 use Symfony\Component\Config\FileLocator;
@@ -15,29 +16,22 @@ use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 
-class FlareExtension extends Extension implements PrependExtensionInterface
+/**
+ * @internal
+ */
+final class FlareExtension extends Extension implements PrependExtensionInterface
 {
-    private const string MONOLOG_ENABLED_PARAMETER = '.flare.monolog_enabled';
-
     #[\Override]
     public function prepend(ContainerBuilder $container): void
     {
-        // Other extensions are only visible here: load() receives a container holding this extension only.
-        $hasMonolog = $container->hasExtension('monolog');
-        $container->setParameter(self::MONOLOG_ENABLED_PARAMETER, $hasMonolog);
+        // Other extensions are only visible in prepend(): load() receives a container holding this extension only.
+        $configs = $container->getExtensionConfig($this->getAlias());
 
-        if (!$hasMonolog) {
+        if (!$container->hasExtension('monolog') || !self::isAutoRegisterEnabled($configs)) {
             return;
         }
 
-        // Configs are not processed yet (and may contain env placeholders): merge the raw configs.
-        // Lists are merged by index, unlike Symfony which appends them: only rely on scalar options here.
-        $config = array_replace_recursive([], ...$container->getExtensionConfig($this->getAlias()));
-
-        if (!self::isLogIntegrationEnabled($config)) {
-            return;
-        }
-
+        // Registered even when logs are disabled: Flare's logger then ignores the records.
         $container->prependExtensionConfig('monolog', [
             'handlers' => [
                 'flare' => [
@@ -52,40 +46,40 @@ class FlareExtension extends Extension implements PrependExtensionInterface
     public function load(array $configs, ContainerBuilder $container): void
     {
         $config = $this->processConfiguration(new Configuration(), $configs);
-        $container->setParameter('flare.config', $config);
+        $container->getDefinition(Container::class)->setArgument('$config', $config);
 
         $loader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/../../config'));
         $loader->load('services.php');
 
-        if (self::isLogIntegrationEnabled($config)) {
-            $isMonologEnabled = $container->hasParameter(self::MONOLOG_ENABLED_PARAMETER)
-                && true === $container->getParameter(self::MONOLOG_ENABLED_PARAMETER);
-
-            if ($isMonologEnabled) {
-                $container->register(FlareLogHandler::class, FlareLogHandler::class)
-                    ->setArgument('$logger', new Reference(Logger::class))
-                ;
-            }
-            else {
-                $container->register(FlareLogger::class, FlareLogger::class)
-                    ->setDecoratedService('logger', null, 0, ContainerInterface::IGNORE_ON_INVALID_REFERENCE)
-                    ->setArguments([
-                        '$symfonyLogger' => new Reference('.inner'),
-                        '$flareLogger'   => new Reference(Logger::class),
-                    ])
-                ;
-            }
+        if (false === self::isAutoRegisterEnabled([$config])) {
+            return;
         }
+
+        $container->register(FlareLogHandler::class, FlareLogHandler::class)
+            ->setArgument('$logger', new Reference(Logger::class))
+        ;
+
+        // Removed by LogIntegrationPass when MonologBundle is enabled.
+        $container->register(FlareLogger::class, FlareLogger::class)
+            ->setDecoratedService('logger', null, 0, ContainerInterface::IGNORE_ON_INVALID_REFERENCE)
+            ->setArguments([
+                '$symfonyLogger' => new Reference('.inner'),
+                '$flareLogger'   => new Reference(Logger::class),
+            ])
+        ;
     }
 
     /**
-     * @param array<mixed> $config
+     * @param array<mixed> $configs
      */
-    private static function isLogIntegrationEnabled(array $config): bool
+    private static function isAutoRegisterEnabled(array $configs): bool
     {
-        $log    = \is_array($config['log'] ?? null) ? $config['log'] : [];
-        $enable = $log['enable'] ?? null;
+        $autoRegister = true;
 
-        return null !== $enable && false !== $enable && false !== ($log['auto_register'] ?? true);
+        foreach ($configs as $config) {
+            $autoRegister = \is_array($config) && \is_array($config['log'] ?? null) ? true === $config['log']['auto_register'] : true;
+        }
+
+        return $autoRegister;
     }
 }
