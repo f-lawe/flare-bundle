@@ -71,6 +71,34 @@ class SomeController
 }
 ```
 
+### Customising Flare services
+Flare's internal services (`Tracer`, `Sampler`, `Sender`, recorders, etc.) are private services of the Symfony container, listed by `debug:container`. Inject `Flare` and use its properties (`$flare->tracer`, `$flare->log()`, etc.) rather than these services. To change one of them, decorate it the Symfony way:
+
+```php
+namespace App\Flare;
+
+use Spatie\FlareClient\EntryPoint\EntryPoint;
+use Spatie\FlareClient\Sampling\Sampler;
+use Symfony\Component\DependencyInjection\Attribute\AsDecorator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireDecorated;
+
+#[AsDecorator(Sampler::class)]
+final class CustomSampler implements Sampler
+{
+    public function __construct(
+        #[AutowireDecorated] private readonly Sampler $flareSampler,
+    ) {
+    }
+
+    public function shouldSample(EntryPoint $entryPoint, ?bool $parentSampled = null): bool
+    {
+        return $this->flareSampler->shouldSample($entryPoint, $parentSampled);
+    }
+}
+```
+
+Every Flare service using the decorated one gets the decorator.
+
 ## Configuration
 
 ### Sender
