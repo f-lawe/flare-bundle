@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Flawe\FlareBundle\Support;
 
+use Flawe\FlareBundle\FlareFactory;
 use Psr\Container\ContainerInterface;
 use Spatie\FlareClient\FlareProvider;
 use Spatie\FlareClient\Support\Container;
@@ -17,17 +18,19 @@ use Spatie\FlareClient\Support\Exceptions\ContainerEntryNotFoundException;
  */
 final class RuntimeContainer extends Container
 {
-    private ?FlareProvider $provider = null;
+    private ?FlareProvider $provider;
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public function __construct(
+        array $config,
         private ContainerInterface $services,
     ) {
         parent::__construct();
-    }
 
-    public function setProvider(FlareProvider $provider): void
-    {
-        $this->provider = $provider;
+        $this->provider = FlareFactory::createProvider($config, $this);
+        $this->provider->register();
     }
 
     public function build(string $id): mixed

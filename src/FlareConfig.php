@@ -51,6 +51,7 @@ final class FlareConfig extends \Spatie\FlareClient\FlareConfig
         $flareConfig->setSampling($config);
         $flareConfig->setSender($config);
         $flareConfig->setCollectConfig($config);
+        $flareConfig->setJobs($config);
         $flareConfig->setCensorConfig($config);
         $flareConfig->setApplication($config);
 
@@ -276,6 +277,40 @@ final class FlareConfig extends \Spatie\FlareClient\FlareConfig
 
         if (isset($collect['server_info'])) {
             $collect['server_info'] ? $this->collectServerInfo() : $this->ignoreServerInfo();
+        }
+    }
+
+    /**
+     * Flare's defaults do not collect jobs: "use_defaults" enables them for Messenger.
+     *
+     * @param array{
+     *   use_defaults: bool,
+     *   collect?: array{
+     *     jobs?: array{
+     *       enable?: bool,
+     *       ignored_messages?: list<string>,
+     *     },
+     *   },
+     * } $config
+     */
+    private function setJobs(array $config): void
+    {
+        $jobs = $config['collect']['jobs'] ?? [];
+
+        $enable = $jobs['enable'] ?? null;
+
+        if ($enable === null && !$config['use_defaults']) {
+            return;
+        }
+
+        /** @var list<class-string> $ignoredMessages Class patterns */
+        $ignoredMessages = $jobs['ignored_messages'] ?? [];
+
+        $this->collectJobs(ignoredClasses: $ignoredMessages);
+
+        // Ignored jobs still resolve the "queue" entry point of their errors.
+        if ($enable === false) {
+            $this->ignoreJobs();
         }
     }
 

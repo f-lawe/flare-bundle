@@ -108,12 +108,12 @@ class FlareBundle extends AbstractBundle
             $locator[$id] = service($id);
         }
 
-        $services->get(Flare::class)->configurator([service(RuntimeContainer::class), 'bootProvider']);
-
-        $services->get(RuntimeContainer::class)->args([
+        $services->set(RuntimeContainer::class)->args([
             '$config'   => $config,
             '$services' => service_locator($locator),
         ]);
+
+        $services->get(Flare::class)->configurator([service(RuntimeContainer::class), 'bootProvider']);
     }
 
     /**

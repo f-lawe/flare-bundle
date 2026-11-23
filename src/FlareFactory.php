@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Flawe\FlareBundle;
 
 use Flawe\FlareBundle\Support\DryRunContainer;
-use Flawe\FlareBundle\Support\RuntimeContainer;
-use Psr\Container\ContainerInterface;
 use Spatie\FlareClient\Enums\SpanType;
 use Spatie\FlareClient\FlareProvider;
 use Spatie\FlareClient\Spans\Span;
@@ -19,31 +17,24 @@ final class FlareFactory
 {
     private const SERVER_FRANKENPHP_WORKER = 'FRANKENPHP_WORKER';
     private const SERVER_RR_MODE           = 'RR_MODE';
+    private const SERVER_ARGV              = 'argv';
+
+    private const LONG_RUNNING_COMMANDS = [
+        'messenger:consume',
+    ];
 
     private const SPANS_CLOSED_BY_BUNDLE = [
         SpanType::Application,
         SpanType::ApplicationTerminating,
         SpanType::Request,
         SpanType::Command,
+        SpanType::Job,
+        SpanType::QueueingJob,
     ];
 
     private const INI_SETTINGS_RESTORED_AFTER_DRY_RUN = [
         'zend.exception_ignore_args',
     ];
-
-    /**
-     * @param array<string, mixed> $config
-     */
-    public static function create(array $config, ContainerInterface $services): RuntimeContainer
-    {
-        $container = new RuntimeContainer($services);
-        $provider  = self::createProvider($config, $container);
-
-        $provider->register();
-        $container->setProvider($provider);
-
-        return $container;
-    }
 
     /**
      * @param array<string, mixed> $config
@@ -77,7 +68,7 @@ final class FlareFactory
     /**
      * @param array<string, mixed> $config
      */
-    private static function createProvider(array $config, FlareClientContainer $container): FlareProvider
+    public static function createProvider(array $config, FlareClientContainer $container): FlareProvider
     {
         $flareConfig = FlareConfig::fromSymfonyConfig($config);
 
@@ -101,11 +92,27 @@ final class FlareFactory
             return true;
         }
 
-        return ($_SERVER[self::SERVER_RR_MODE] ?? getenv(self::SERVER_RR_MODE)) !== false;
+        if (($_SERVER[self::SERVER_RR_MODE] ?? getenv(self::SERVER_RR_MODE)) !== false) {
+            return true;
+        }
+
+        $argv = $_SERVER[self::SERVER_ARGV] ?? null;
+
+        if (\PHP_SAPI !== 'cli' || !\is_array($argv)) {
+            return false;
+        }
+
+        foreach (self::LONG_RUNNING_COMMANDS as $command) {
+            if (\in_array($command, $argv, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
-     * Spans closed by the bundle's kernel/console subscribers must not be ended gracefully by Reporter::report().
+     * Spans closed by the bundle's subscribers must not be ended gracefully by Reporter::report().
      */
     private static function isEndedGracefully(Span $span): bool
     {

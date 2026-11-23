@@ -1,11 +1,12 @@
 # Changelog
-
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
 ### Added
 - Flare services (`Tracer`, `Sampler`, `Sender`, recorders, etc.) are now private services of the Symfony container: they are listed by `debug:container` and can be decorated the Symfony way
+- Symfony Messenger support: messages handled by `messenger:consume` are traced as jobs, in subtasks, continuing the trace of the code sending them, and their errors are reported
+- `collect.jobs` config option, with `ignored_messages`
 
 ### Changed
 - Symfony now owns the instances of Flare services: Flare's container only holds the service builders registered by `FlareProvider::register()`
