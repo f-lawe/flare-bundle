@@ -8,6 +8,7 @@ use Flawe\FlareBundle\Sampling\Rules\RuleType;
 use Flawe\FlareBundle\Senders\SenderType;
 use Monolog\Level;
 use Psr\Log\LogLevel;
+use Spatie\FlareClient\FlareConfig as SpatieFlareConfig;
 use Spatie\FlareClient\Sampling\DynamicSampler;
 use Spatie\FlareClient\Sampling\SamplingRule;
 use Spatie\FlareClient\Tracer;
@@ -15,7 +16,7 @@ use Spatie\FlareClient\Tracer;
 /**
  * @internal
  */
-final class FlareConfig extends \Spatie\FlareClient\FlareConfig
+final class FlareConfig extends SpatieFlareConfig
 {
     public const LOG_LEVELS = [
         LogLevel::DEBUG,
@@ -51,6 +52,7 @@ final class FlareConfig extends \Spatie\FlareClient\FlareConfig
         $flareConfig->setSampling($config);
         $flareConfig->setSender($config);
         $flareConfig->setCollectConfig($config);
+        $flareConfig->setJobs($config);
         $flareConfig->setCensorConfig($config);
         $flareConfig->setApplication($config);
 
@@ -62,7 +64,7 @@ final class FlareConfig extends \Spatie\FlareClient\FlareConfig
      *   log?: array{
      *     enable?: bool,
      *     auto_register?: bool,
-     *     minimal_level?: value-of<self::LOG_LEVELS>,
+     *     level?: value-of<self::LOG_LEVELS>,
      *   },
      * } $config
      */
@@ -73,7 +75,7 @@ final class FlareConfig extends \Spatie\FlareClient\FlareConfig
         }
 
         try {
-            $logLevel = isset($config['log']['minimal_level']) ? Level::fromName($config['log']['minimal_level']) : null;
+            $logLevel = isset($config['log']['level']) ? Level::fromName($config['log']['level']) : null;
         }
         catch (\UnhandledMatchError $error) {
             $logLevel = null;
@@ -276,6 +278,40 @@ final class FlareConfig extends \Spatie\FlareClient\FlareConfig
 
         if (isset($collect['server_info'])) {
             $collect['server_info'] ? $this->collectServerInfo() : $this->ignoreServerInfo();
+        }
+    }
+
+    /**
+     * Flare's defaults do not collect jobs: "use_defaults" enables them for Messenger.
+     *
+     * @param array{
+     *   use_defaults: bool,
+     *   collect?: array{
+     *     jobs?: array{
+     *       enable?: bool,
+     *       ignored_messages?: list<string>,
+     *     },
+     *   },
+     * } $config
+     */
+    private function setJobs(array $config): void
+    {
+        $jobs = $config['collect']['jobs'] ?? [];
+
+        $enable = $jobs['enable'] ?? null;
+
+        if ($enable === null && !$config['use_defaults']) {
+            return;
+        }
+
+        /** @var list<class-string> $ignoredMessages Class patterns */
+        $ignoredMessages = $jobs['ignored_messages'] ?? [];
+
+        $this->collectJobs(ignoredClasses: $ignoredMessages);
+
+        // Ignored jobs still resolve the "queue" entry point of their errors.
+        if ($enable === false) {
+            $this->ignoreJobs();
         }
     }
 

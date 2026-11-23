@@ -71,6 +71,34 @@ class SomeController
 }
 ```
 
+### Customising Flare services
+Flare's internal services (`Tracer`, `Sampler`, `Sender`, recorders, etc.) are private services of the Symfony container, listed by `debug:container`. Inject `Flare` and use its properties (`$flare->tracer`, `$flare->log()`, etc.) rather than these services. To change one of them, decorate it the Symfony way:
+
+```php
+namespace App\Flare;
+
+use Spatie\FlareClient\EntryPoint\EntryPoint;
+use Spatie\FlareClient\Sampling\Sampler;
+use Symfony\Component\DependencyInjection\Attribute\AsDecorator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireDecorated;
+
+#[AsDecorator(Sampler::class)]
+final class CustomSampler implements Sampler
+{
+    public function __construct(
+        #[AutowireDecorated] private readonly Sampler $flareSampler,
+    ) {
+    }
+
+    public function shouldSample(EntryPoint $entryPoint, ?bool $parentSampled = null): bool
+    {
+        return $this->flareSampler->shouldSample($entryPoint, $parentSampled);
+    }
+}
+```
+
+Every Flare service using the decorated one gets the decorator.
+
 ## Configuration
 
 ### Sender
@@ -108,7 +136,7 @@ Enable log collection to send your application logs to Flare. Logs are also requ
 flare:
     log:
         enable: true
-        minimal_level: warning
+        level: warning
 ```
 
 The bundle hooks into the Symfony logger automatically, while keeping your existing log output (records are only sent to Flare when `log.enable` is `true`):
@@ -125,4 +153,28 @@ The bundle hooks into the Symfony logger automatically, while keeping your exist
 Set `log.auto_register: false` to disable this integration and only record logs manually with `$flare->log()->record()`.
 
 Logs are sent at the end of each request or console command. See [Logs](https://flareapp.io/docs/php/logs/introduction).
+
+### Messenger
+With [Symfony Messenger](https://symfony.com/doc/current/messenger.html), the bundle traces messages sent to transports and handled by `messenger:consume` workers:
+- sending a message records a `Queueing` span, and stamps the message with the current trace so that the worker continues it;
+- each message handled by a worker is traced as a job (with the `job` sampling entry point), and its errors are reported to Flare, on every attempt.
+
+Messages handled synchronously (without transport) are not traced as jobs.
+
+Use `collect.jobs` to disable this tracing (errors are still reported), or to ignore some messages:
+
+```yaml
+flare:
+    collect:
+        jobs:
+            ignored_messages: ['App\Message\Ping', 'App\Message\Health*']
+```
+
+### Long-running processes
+In long-running processes, every unit of work is traced as a [subtask](https://flareapp.io/docs/php/general/integrating-into-a-framework#queue-workers-and-long-running-processes): each request with a FrankenPHP worker or RoadRunner, each message with `messenger:consume`. Use `subtasks` (`auto`, `always` or `never`) to override this detection:
+
+```yaml
+flare:
+    subtasks: never
+```
 

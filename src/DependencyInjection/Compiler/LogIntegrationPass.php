@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Flawe\FlareBundle\DependencyInjection\Compiler;
 
-use Flawe\FlareBundle\Log\FlareLogger;
+use Flawe\FlareBundle\Logger;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -17,7 +17,7 @@ final class LogIntegrationPass implements CompilerPassInterface
     public function process(ContainerBuilder $container): void
     {
         if ($container->hasExtension('monolog')) {
-            $container->removeDefinition(FlareLogger::class);
+            $container->removeDefinition(Logger::class);
         }
     }
 }

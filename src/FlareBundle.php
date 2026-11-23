@@ -5,19 +5,20 @@ declare(strict_types=1);
 namespace Flawe\FlareBundle;
 
 use Flawe\FlareBundle\DependencyInjection\Compiler\LogIntegrationPass;
-use Flawe\FlareBundle\Log\FlareLogger;
-use Flawe\FlareBundle\Support\Container;
+use Flawe\FlareBundle\Support\FlareLogHandler;
+use Flawe\FlareBundle\Support\RuntimeContainer;
 use Spatie\FlareClient\Flare;
-use Spatie\FlareClient\Logger;
-use Spatie\FlareClient\Support\FlareLogHandler;
+use Spatie\FlareClient\Logger as ClientLogger;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 use Symfony\Component\ErrorHandler\ErrorHandler;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
+use function Symfony\Component\DependencyInjection\Loader\Configurator\service_locator;
 
 class FlareBundle extends AbstractBundle
 {
@@ -57,27 +58,8 @@ class FlareBundle extends AbstractBundle
 
         $services = $configurator->services();
 
-        // Passed as an argument rather than a parameter, so the API key is not exposed as a container parameter.
-        $services->get(Container::class)->arg('$config', $config);
-
-        $log = \is_array($config['log'] ?? null) ? $config['log'] : [];
-
-        if (($log['auto_register'] ?? true) === false) {
-            return;
-        }
-
-        $services->set(FlareLogHandler::class)
-            ->arg('$logger', service(Logger::class))
-        ;
-
-        // Removed by LogIntegrationPass when MonologBundle is enabled.
-        $services->set(FlareLogger::class)
-            ->decorate('logger', null, 0, ContainerInterface::IGNORE_ON_INVALID_REFERENCE)
-            ->args([
-                '$symfonyLogger' => service('.inner'),
-                '$flareLogger'   => service(Logger::class),
-            ])
-        ;
+        self::loadFlareServices($config, $services);
+        self::loadLoggers($config, $services);
     }
 
     #[\Override]
@@ -106,6 +88,56 @@ class FlareBundle extends AbstractBundle
         if (!self::hasSymfonyErrorHandler()) {
             $flare->registerExceptionHandler();
         }
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private static function loadFlareServices(array $config, ServicesConfigurator $services): void
+    {
+        $locator = [];
+
+        foreach (FlareFactory::discoverServices($config) as $id => $shared) {
+            $services->set($id)
+                ->factory([service(RuntimeContainer::class), 'build'])
+                ->args([$id])
+                ->share($shared)
+            ;
+
+            $locator[$id] = service($id);
+        }
+
+        $services->set(RuntimeContainer::class)->args([
+            '$config'   => $config,
+            '$services' => service_locator($locator),
+        ]);
+
+        $services->get(Flare::class)->configurator([service(RuntimeContainer::class), 'bootProvider']);
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private static function loadLoggers(array $config, ServicesConfigurator $services): void
+    {
+        $log = \is_array($config['log'] ?? null) ? $config['log'] : [];
+
+        if (($log['auto_register'] ?? true) === false) {
+            return;
+        }
+
+        $services->set(FlareLogHandler::class)
+            ->arg('$logger', service(ClientLogger::class))
+        ;
+
+        // Removed by LogIntegrationPass when MonologBundle is enabled.
+        $services->set(Logger::class)
+            ->decorate('logger', null, 0, ContainerInterface::IGNORE_ON_INVALID_REFERENCE)
+            ->args([
+                '$symfonyLogger' => service('.inner'),
+                '$flareLogger'   => service(ClientLogger::class),
+            ])
+        ;
     }
 
     private function isAutoRegisterEnabled(ContainerBuilder $container): bool

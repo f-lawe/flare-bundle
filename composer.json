@@ -26,10 +26,12 @@
         "ergebnis/composer-normalize": "^2.51",
         "friendsofphp/php-cs-fixer": "^3.94",
         "phpstan/phpstan": "^2.1",
-        "symfony/console": "^7.0 || ^8.0"
+        "symfony/console": "^7.0 || ^8.0",
+        "symfony/messenger": "^7.0 || ^8.0"
     },
     "suggest": {
         "symfony/console": "Report errors raised by console commands",
+        "symfony/messenger": "Trace Messenger jobs and queued messages",
         "symfony/monolog-bundle": "Send application logs to Flare"
     },
     "autoload": {
