@@ -15,6 +15,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Breaking:** the `flare.service` tag, use Symfony service decoration instead
 - **Breaking:** autowiring Flare subservices (`Tracer`, `Logger`, `Reporter`, etc.), inject `Flare` and use its properties instead (`$flare->tracer`, `$flare->log()`, etc.)
 
+### Fixed
+- PSR-3 placeholders in log messages are now interpolated before being sent to Flare
+
 ## [3.3.0] - 2026-11-17
 
 ### Added

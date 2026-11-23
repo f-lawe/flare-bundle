@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Flawe\FlareBundle;
 
 use Flawe\FlareBundle\DependencyInjection\Compiler\LogIntegrationPass;
-use Flawe\FlareBundle\Log\FlareLogger;
+use Flawe\FlareBundle\Support\FlareLogHandler;
 use Flawe\FlareBundle\Support\RuntimeContainer;
 use Spatie\FlareClient\Flare;
-use Spatie\FlareClient\Logger;
-use Spatie\FlareClient\Support\FlareLogHandler;
+use Spatie\FlareClient\Logger as ClientLogger;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -128,15 +127,15 @@ class FlareBundle extends AbstractBundle
         }
 
         $services->set(FlareLogHandler::class)
-            ->arg('$logger', service(Logger::class))
+            ->arg('$logger', service(ClientLogger::class))
         ;
 
         // Removed by LogIntegrationPass when MonologBundle is enabled.
-        $services->set(FlareLogger::class)
+        $services->set(Logger::class)
             ->decorate('logger', null, 0, ContainerInterface::IGNORE_ON_INVALID_REFERENCE)
             ->args([
                 '$symfonyLogger' => service('.inner'),
-                '$flareLogger'   => service(Logger::class),
+                '$flareLogger'   => service(ClientLogger::class),
             ])
         ;
     }

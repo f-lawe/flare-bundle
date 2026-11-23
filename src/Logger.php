@@ -2,25 +2,31 @@
 
 declare(strict_types=1);
 
-namespace Flawe\FlareBundle\Log;
+namespace Flawe\FlareBundle;
 
 use Monolog\Level as MonologLevel;
+use Monolog\LogRecord;
+use Monolog\Processor\PsrLogMessageProcessor;
 use Psr\Log\AbstractLogger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel as PsrLogLevel;
-use Spatie\FlareClient\Logger;
+use Spatie\FlareClient\Logger as FlareLogger;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Log\DebugLoggerInterface;
 
 /**
  * @internal
  */
-final class FlareLogger extends AbstractLogger implements DebugLoggerInterface
+final class Logger extends AbstractLogger implements DebugLoggerInterface
 {
+    private readonly PsrLogMessageProcessor $messageProcessor;
+
     public function __construct(
         private readonly LoggerInterface $symfonyLogger,
-        private readonly Logger $flareLogger,
-    ) {}
+        private readonly FlareLogger $flareLogger,
+    ) {
+        $this->messageProcessor = new PsrLogMessageProcessor();
+    }
 
     /**
      * @param mixed[] $context
@@ -43,7 +49,17 @@ final class FlareLogger extends AbstractLogger implements DebugLoggerInterface
         };
 
         if ($monologLevel !== null) {
-            $this->flareLogger->record((string) $message, $monologLevel, $context);
+            $record = new LogRecord(
+                new \DateTimeImmutable(),
+                'app',
+                $monologLevel,
+                (string) $message,
+                $context,
+            );
+
+            $record = ($this->messageProcessor)($record);
+
+            $this->flareLogger->record($record->message, $record->level, $record->context);
         }
     }
 

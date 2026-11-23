@@ -136,7 +136,7 @@ Enable log collection to send your application logs to Flare. Logs are also requ
 flare:
     log:
         enable: true
-        minimal_level: warning
+        level: warning
 ```
 
 The bundle hooks into the Symfony logger automatically, while keeping your existing log output (records are only sent to Flare when `log.enable` is `true`):

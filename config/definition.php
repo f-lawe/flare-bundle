@@ -38,7 +38,7 @@ return static function (DefinitionConfigurator $definition): void {
                         ->info('Hook into the Symfony logger: registers a "flare" Monolog handler with MonologBundle, decorates the "logger" service otherwise.')
                         ->defaultTrue()
                     ->end()
-                    ->enumNode('minimal_level')
+                    ->enumNode('level')
                         ->info('Minimal level of the logs sent to Flare.')
                         ->values(FlareConfig::LOG_LEVELS)
                     ->end()

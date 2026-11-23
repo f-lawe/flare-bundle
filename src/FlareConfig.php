@@ -8,6 +8,7 @@ use Flawe\FlareBundle\Sampling\Rules\RuleType;
 use Flawe\FlareBundle\Senders\SenderType;
 use Monolog\Level;
 use Psr\Log\LogLevel;
+use Spatie\FlareClient\FlareConfig as SpatieFlareConfig;
 use Spatie\FlareClient\Sampling\DynamicSampler;
 use Spatie\FlareClient\Sampling\SamplingRule;
 use Spatie\FlareClient\Tracer;
@@ -15,7 +16,7 @@ use Spatie\FlareClient\Tracer;
 /**
  * @internal
  */
-final class FlareConfig extends \Spatie\FlareClient\FlareConfig
+final class FlareConfig extends SpatieFlareConfig
 {
     public const LOG_LEVELS = [
         LogLevel::DEBUG,
@@ -63,7 +64,7 @@ final class FlareConfig extends \Spatie\FlareClient\FlareConfig
      *   log?: array{
      *     enable?: bool,
      *     auto_register?: bool,
-     *     minimal_level?: value-of<self::LOG_LEVELS>,
+     *     level?: value-of<self::LOG_LEVELS>,
      *   },
      * } $config
      */
@@ -74,7 +75,7 @@ final class FlareConfig extends \Spatie\FlareClient\FlareConfig
         }
 
         try {
-            $logLevel = isset($config['log']['minimal_level']) ? Level::fromName($config['log']['minimal_level']) : null;
+            $logLevel = isset($config['log']['level']) ? Level::fromName($config['log']['level']) : null;
         }
         catch (\UnhandledMatchError $error) {
             $logLevel = null;
